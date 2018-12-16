@@ -26,9 +26,9 @@ output_file() {
 cd /tmp
 
 cat > render.tex
-run latex -halt-on-error -interaction=nonstopmode render.tex 1>&2
-run dvisvgm --no-fonts --verbosity=1 render.dvi 1>&2
-run rsvg-convert -o render.png render.svg 1>&2
+run latex -halt-on-error -interaction=nonstopmode render.tex
+run dvisvgm --no-fonts --verbosity=1 render.dvi
+run rsvg-convert -o render.png render.svg
 
 [ -f render.png ] || fail 'PNG was not generated'
 [ "$(wc -c render.png | cut -d' ' -f1)" -ge 24 ] || fail 'PNG file too small'
