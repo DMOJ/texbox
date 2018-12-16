@@ -13,7 +13,7 @@ fail() {
 
 run() {
   log "Running $@..."
-  timeout "${MAX_COMMAND_WAIT_TIME}" "$@" 1>&2 || fail "$1 invocation failed"
+  timeout "${MAX_COMMAND_WAIT_TIME}" "$@" >&2 || fail "$1 invocation failed"
 }
 
 output_file() {
@@ -26,7 +26,7 @@ output_file() {
 cd /tmp
 
 cat > render.tex
-run latex -halt-on-error -interaction=nonstopmode render.tex
+run latex -halt-on-error -interaction=nonstopmode -no-shell-escape render.tex
 run dvisvgm --no-fonts --verbosity=1 render.dvi
 run rsvg-convert -o render.png render.svg
 
