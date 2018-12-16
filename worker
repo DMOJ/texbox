@@ -1,8 +1,19 @@
 #!/bin/bash -e
 
-fail() {
+MAX_COMMAND_WAIT_TIME=10
+
+log() {
   echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
+}
+
+fail() {
+  log "$@"
   exit 1
+}
+
+run() {
+  log "Running $@..."
+  timeout "${MAX_COMMAND_WAIT_TIME}" "$@" 1>&2 || fail "$1 invocation failed"
 }
 
 output_file() {
@@ -15,9 +26,9 @@ output_file() {
 cd /tmp
 
 cat > render.tex
-latex -halt-on-error -interaction=nonstopmode render.tex 1>&2 || fail 'latex invocation failed'
-dvisvgm --no-fonts --verbosity=1 render.dvi 1>&2 || fail 'dvisvgm invocation failed'
-rsvg-convert -o render.png render.svg 1>&2 || fail 'rsvg-convert invocation failed'
+run latex -halt-on-error -interaction=nonstopmode render.tex 1>&2
+run dvisvgm --no-fonts --verbosity=1 render.dvi 1>&2
+run rsvg-convert -o render.png render.svg 1>&2
 
 [ -f render.png ] || fail 'PNG was not generated'
 [ "$(wc -c render.png | cut -d' ' -f1)" -ge 24 ] || fail 'PNG file too small'
