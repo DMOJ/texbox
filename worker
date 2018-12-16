@@ -5,8 +5,6 @@ cat > render.tex
 latex -halt-on-error -interaction=nonstopmode render.tex 1>&2
 dvisvgm --no-fonts --verbosity=1 render.dvi 1>&2
 rsvg-convert -o render.png render.svg 1>&2
-scour -i render.svg -o compact.svg --enable-id-stripping \
-    --enable-comment-stripping --shorten-ids --indent=none 1>&2
 
 [ -f render.png ] || { echo 'PNG was not generated'; exit 1; }
 [ "$(wc -c render.png | cut -d' ' -f1)" -ge 24 ] || { echo 'PNG file too small'; exit 1; }
@@ -23,5 +21,5 @@ output_file() {
     cat "$1"
 }
 
-output_file compact.svg
+output_file render.svg
 output_file render.png

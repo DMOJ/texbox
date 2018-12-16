@@ -5,7 +5,7 @@ Docker container to generate SVG and PNG files from LaTeX.
 
     docker run -i dmoj/texbox < test.tex
 
-LaTeX, `dvisvgm`, `rsvg-convert` and `scour` output will be in `stderr`.
+LaTeX, `dvisvgm` and `rsvg-convert`output will be in `stderr`.
 
 ### `stdout` format
 
