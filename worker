@@ -1,0 +1,27 @@
+#!/bin/bash -e
+cd /tmp
+
+cat > render.tex
+latex -halt-on-error -interaction=nonstopmode render.tex 1>&2
+dvisvgm --no-fonts --verbosity=1 render.dvi 1>&2
+rsvg-convert -o render.png render.svg 1>&2
+scour -i render.svg -o compact.svg --enable-id-stripping \
+    --enable-comment-stripping --shorten-ids --indent=none 1>&2
+
+[ -f render.png ] || { echo 'PNG was not generated'; exit 1; }
+[ "$(wc -c render.png | cut -d' ' -f1)" -ge 24 ] || { echo 'PNG file too small'; exit 1; }
+[ "$(xxd -p -l4 render.png)" = '89504e47' ] || { echo 'no PNG magic number found'; exit 1; }
+[ "$(xxd -p -l4 -s12 render.png)" = '49484452' ] || { echo 'no IHDR in png'; exit 1; }
+
+# Output: binary width followed by height as unsigned 32-bit integer
+dd if=render.png skip=4 bs=4 count=2 status=none
+
+output_file() {
+    # Output file length as unsigned 32-bit integer
+    printf '%08x' "$(wc -c "$1" | cut -d' ' -f1)" | xxd -r -p
+    # Output raw file bytes
+    cat "$1"
+}
+
+output_file compact.svg
+output_file render.png
