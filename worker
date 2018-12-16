@@ -1,25 +1,31 @@
 #!/bin/bash -e
+
+fail() {
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
+  exit 1
+}
+
+output_file() {
+  # Output file length as unsigned 32-bit integer
+  printf '%08x' "$(wc -c "$1" | cut -d' ' -f1)" | xxd -r -p
+  # Output raw file bytes
+  cat "$1"
+}
+
 cd /tmp
 
 cat > render.tex
-latex -halt-on-error -interaction=nonstopmode render.tex 1>&2
-dvisvgm --no-fonts --verbosity=1 render.dvi 1>&2
-rsvg-convert -o render.png render.svg 1>&2
+latex -halt-on-error -interaction=nonstopmode render.tex 1>&2 || fail 'latex invocation failed'
+dvisvgm --no-fonts --verbosity=1 render.dvi 1>&2 || fail 'dvisvgm invocation failed'
+rsvg-convert -o render.png render.svg 1>&2 || fail 'rsvg-convert invocation failed'
 
-[ -f render.png ] || { echo 'PNG was not generated'; exit 1; }
-[ "$(wc -c render.png | cut -d' ' -f1)" -ge 24 ] || { echo 'PNG file too small'; exit 1; }
-[ "$(xxd -p -l4 render.png)" = '89504e47' ] || { echo 'no PNG magic number found'; exit 1; }
-[ "$(xxd -p -l4 -s12 render.png)" = '49484452' ] || { echo 'no IHDR in png'; exit 1; }
+[ -f render.png ] || fail 'PNG was not generated'
+[ "$(wc -c render.png | cut -d' ' -f1)" -ge 24 ] || fail 'PNG file too small'
+[ "$(xxd -p -l4 render.png)" = '89504e47' ] || fail 'no PNG magic number found'
+[ "$(xxd -p -l4 -s12 render.png)" = '49484452' ] || fail 'no IHDR in PNG'
 
 # Output: binary width followed by height as unsigned 32-bit integer
 dd if=render.png skip=4 bs=4 count=2 status=none
 
-output_file() {
-    # Output file length as unsigned 32-bit integer
-    printf '%08x' "$(wc -c "$1" | cut -d' ' -f1)" | xxd -r -p
-    # Output raw file bytes
-    cat "$1"
-}
-
-output_file render.svg
-output_file render.png
+output_file 'render.svg'
+output_file 'render.png'
