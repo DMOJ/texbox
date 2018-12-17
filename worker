@@ -12,8 +12,9 @@ fail() {
 }
 
 run() {
-  log "Running $@..."
+  log "Running $@"
   timeout "${MAX_COMMAND_WAIT_TIME}" "$@" >&2 || fail "$1 invocation failed"
+  echo >&2
 }
 
 output_file() {
