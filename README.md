@@ -1,4 +1,4 @@
-# `texbox`
+# `texbox` [![Build Status](https://github.com/DMOJ/texbox/workflows/build/badge.svg)](https://github.com/DMOJ/texbox/actions/)
 Docker container to generate SVG and PNG files from LaTeX.
 
 ## Usage
