@@ -12,6 +12,6 @@ jobs:
         docker run -i dmoj/texbox <<EOF
         \documentclass{standalone}
         \begin{document}
-        $E=mc^2$
+        Hello, World!
         \end{document}
         EOF
