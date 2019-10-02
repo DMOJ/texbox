@@ -6,4 +6,12 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag texbox:$(date +%s)
+      run: docker build . --file Dockerfile --tag dmoj/texbox
+    - name: Test the Docker image 
+      run: |
+        docker run -i dmoj/texbox <<EOF
+        \documentclass{standalone}
+        \begin{document}
+        $E=mc^2$
+        \end{document}
+        EOF
